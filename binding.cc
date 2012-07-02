@@ -1,9 +1,13 @@
 #include <node.h>
 #include <v8.h>
-#include "redcarpet/html.h"
-#include "redcarpet/markdown.h"
+
+extern "C" {
+#	include "redcarpet/html.h"
+#	include "redcarpet/markdown.h"
+}
 
 using namespace v8;
+using namespace node;
 
 struct redcarpet_renderopt {
 	struct html_renderopt html;
@@ -22,7 +26,18 @@ Handle<Value> VException(const char *msg)
 	return ThrowException(Exception::Error(String::New(msg)));
 }
 
-void rb_redcarpet_md_flags(Handle<Object> hash, unsigned int *enabled_extensions_p)
+class Markdown : public ObjectWrap
+{
+	public:
+		Markdown();
+		~Markdown();
+		Handle<Value> create(const Arguments &args);
+	private:
+		void md_flags(Handle<Object> hash, unsigned int *enabled_extensions_p);
+		struct sd_markdown *markdown;
+};
+
+void Markdown::md_flags(Handle<Object> hash, unsigned int *enabled_extensions_p)
 {
 	unsigned int extensions = 0;
 
@@ -72,9 +87,11 @@ void rb_redcarpet_md_flags(Handle<Object> hash, unsigned int *enabled_extensions
 	*enabled_extensions_p = extensions;
 }
 
-Handle<Value> markdown_new(const Arguments &args)
+Handle<Value> Markdown::create(const Arguments &args)
 {
 	HandleScope scope;
+	SetInternalFieldCount(1);
+	Wrap(args.This());
 
 //	VALUE rb_markdown, rb_rndr, hash;
 	Local<Value> rb_markdown, rb_rndr;
@@ -82,7 +99,6 @@ Handle<Value> markdown_new(const Arguments &args)
 	unsigned int extensions = 0;
 
 	struct rb_redcarpet_rndr *rndr;
-	struct sd_markdown *markdown;
 
 	int arg_len = args.Length();
 	if (arg_len < 1 || arg_len > 2) {
@@ -96,7 +112,7 @@ Handle<Value> markdown_new(const Arguments &args)
 			return VException("Markdown: 2nd argument isn't an object");
 		}
 		Local<Object> hash = Object::Cast(*args[1]);
-		rb_redcarpet_md_flags(hash, &extensions);
+		md_flags(hash, &extensions);
 	}
 
 //	if (rb_obj_is_kind_of(rb_rndr, rb_cClass))
@@ -121,7 +137,7 @@ Handle<Value> markdown_new(const Arguments &args)
 //	rb_iv_set(rb_markdown, "@renderer", rb_rndr);
 // TODO
 
-	return scope.Close(rb_markdown);
+	return Undefined();
 }
 
 /*Handle<Value> rb_redcarpet_md_render(const Arguments &args)
@@ -160,6 +176,27 @@ Handle<Value> markdown_new(const Arguments &args)
 
 	return text;
 }*/
+
+Markdown::Markdown()
+{
+	printf("new!\n");
+	markdown = NULL;
+}
+
+Markdown::~Markdown()
+{
+	printf("free!\n");
+	if (markdown != NULL)
+		sd_markdown_free(markdown);
+}
+
+Handle<Value> markdown_new(const Arguments &args)
+{
+	HandleScope scope;
+	Markdown *md = new Markdown();
+	md->create(args);
+	return args.This();
+}
 
 void init(Handle<Object> target) {
 	HandleScope scope;
