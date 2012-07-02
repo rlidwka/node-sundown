@@ -90,7 +90,6 @@ void Markdown::md_flags(Handle<Object> hash, unsigned int *enabled_extensions_p)
 Handle<Value> Markdown::create(const Arguments &args)
 {
 	HandleScope scope;
-	SetInternalFieldCount(1);
 	Wrap(args.This());
 
 //	VALUE rb_markdown, rb_rndr, hash;
@@ -129,9 +128,9 @@ Handle<Value> Markdown::create(const Arguments &args)
 //	markdown = sd_markdown_new(extensions, 16, &rndr->callbacks, &rndr->options);
 //	if (!markdown)
 //		rb_raise(rb_eRuntimeError, "Failed to create new Renderer class");
-	markdown = sd_markdown_new(extensions, 16, &rndr->callbacks, &rndr->options);
-	if (!markdown)
-		return VException("Failed to create new Renderer class");
+//	markdown = sd_markdown_new(extensions, 16, &rndr->callbacks, &rndr->options);
+//	if (!markdown)
+//		return VException("Failed to create new Renderer class");
 
 //	rb_markdown = Data_Wrap_Struct(klass, NULL, rb_redcarpet_md__free, markdown);
 //	rb_iv_set(rb_markdown, "@renderer", rb_rndr);
@@ -192,6 +191,7 @@ Markdown::~Markdown()
 
 Handle<Value> markdown_new(const Arguments &args)
 {
+	assert(args.IsConstructCall());
 	HandleScope scope;
 	Markdown *md = new Markdown();
 	md->create(args);
@@ -200,7 +200,10 @@ Handle<Value> markdown_new(const Arguments &args)
 
 void init(Handle<Object> target) {
 	HandleScope scope;
-	NODE_SET_METHOD(target, "Markdown", markdown_new);
+	Local<FunctionTemplate> t = FunctionTemplate::New(markdown_new);
+	t->InstanceTemplate()->SetInternalFieldCount(1);
+	t->SetClassName(String::New("Markdown"));
+	target->Set(String::NewSymbol("Markdown"), t->GetFunction());
 //	NODE_SET_METHOD(target, "render", markdown_render);
 }
 

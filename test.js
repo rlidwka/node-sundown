@@ -6,12 +6,12 @@ var binding = require('./build/Release/binding');
 assert.equal(typeof(binding), 'object');
 assert.equal(typeof(binding.Markdown), 'function');
 assert.throws(function() {
-	binding.Markdown();
+	new binding.Markdown();
 });
 assert.throws(function() {
-	binding.Markdown({}, {}, {});
+	new binding.Markdown({}, {}, {});
 });
 assert.throws(function() {
-	binding.Markdown({}, 1);
+	new binding.Markdown({}, 1);
 });
-console.log(binding.Markdown({}, {}));
+console.log(new binding.Markdown({}, {}));
