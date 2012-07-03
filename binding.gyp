@@ -11,7 +11,7 @@
         'redcarpet/html_smartypants.c',
         'redcarpet/markdown.c',
         'redcarpet/stack.c',
-        'binding.cc'
+        'binding.cc',
       ]
     }
   ]
