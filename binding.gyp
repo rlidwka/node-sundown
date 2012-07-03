@@ -3,14 +3,14 @@
     {
       'target_name': 'binding',
       'sources': [
-        'redcarpet/autolink.c',
-        'redcarpet/buffer.c',
-        'redcarpet/houdini_href_e.c',
-        'redcarpet/houdini_html_e.c',
-        'redcarpet/html.c',
-        'redcarpet/html_smartypants.c',
-        'redcarpet/markdown.c',
-        'redcarpet/stack.c',
+        'sundown/autolink.c',
+        'sundown/buffer.c',
+        'sundown/houdini_href_e.c',
+        'sundown/houdini_html_e.c',
+        'sundown/html.c',
+        'sundown/html_smartypants.c',
+        'sundown/markdown.c',
+        'sundown/stack.c',
         'binding.cc',
       ]
     }
