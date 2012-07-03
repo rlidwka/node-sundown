@@ -60,11 +60,46 @@ void get_md_flags(Handle<Object> hash, unsigned int *enabled_extensions_p)
 	*enabled_extensions_p = extensions;
 }
 
+void get_render_flags(Handle<Object> hash, unsigned int *enabled_extensions_p)
+{
+	unsigned int render_flags = 0;
+
+	if (hash->Get(String::NewSymbol("escape_html"))->BooleanValue())
+		render_flags |= HTML_ESCAPE;
+
+	if (hash->Get(String::NewSymbol("filter_html"))->BooleanValue())
+		render_flags |= HTML_SKIP_HTML;
+
+	if (hash->Get(String::NewSymbol("no_images"))->BooleanValue())
+		render_flags |= HTML_SKIP_IMAGES;
+
+	if (hash->Get(String::NewSymbol("no_links"))->BooleanValue())
+		render_flags |= HTML_SKIP_LINKS;
+
+	if (hash->Get(String::NewSymbol("no_styles"))->BooleanValue())
+		render_flags |= HTML_SKIP_STYLE;
+
+	if (hash->Get(String::NewSymbol("safe_links_only"))->BooleanValue())
+		render_flags |= HTML_SAFELINK;
+
+	if (hash->Get(String::NewSymbol("with_toc_data"))->BooleanValue())
+		render_flags |= HTML_TOC;
+
+	if (hash->Get(String::NewSymbol("hard_wrap"))->BooleanValue())
+		render_flags |= HTML_HARD_WRAP;
+
+	if (hash->Get(String::NewSymbol("xhtml"))->BooleanValue())
+		render_flags |= HTML_USE_XHTML;
+
+	*enabled_extensions_p = render_flags;
+}
+
 Handle<Value> markdown_render(const Arguments &args)
 {
 	HandleScope scope;
 	
 	unsigned int extensions = 0;
+	unsigned int render_flags = 0;
 	struct rb_redcarpet_rndr rndr;
 	struct sd_markdown *markdown;
 
@@ -74,18 +109,19 @@ Handle<Value> markdown_render(const Arguments &args)
 		return VException("Usage: Sundown.render(text, extensions={})");
 	}
 
-	// get md flags
+	// get md and render flags
 	Local<String> text_to_render = args[0]->ToString();
 	if (arg_len == 2) {
 		if (!args[1]->IsObject()) {
-			return VException("Markdown: 2nd argument isn't an object");
+			return VException("render: 2nd argument isn't an object");
 		}
 		Local<Object> hash = Object::Cast(*args[1]);
 		get_md_flags(hash, &extensions);
+		get_render_flags(hash, &render_flags);
 	}
 
 	// initialize renderer TODO
-	sdhtml_renderer(&rndr.callbacks, (struct html_renderopt *)&rndr.options.html, 0);
+	sdhtml_renderer(&rndr.callbacks, (struct html_renderopt *)&rndr.options.html, render_flags);
 
 	markdown = sd_markdown_new(extensions, 16, &rndr.callbacks, &rndr.options);
 	if (!markdown)
