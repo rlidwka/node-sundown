@@ -1,0 +1,16 @@
+{
+  "author": "Alex Kocharin <alex@kocharin.ru>",
+  "name": "sundown",
+  "description": "Node.js port of Sundown (standards compliant, fast, secure markdown processing library in C)",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rlidwka/node-sundown.git"
+  },
+  "main": "build/Release/binding.node",
+  "engines": {
+    "node": ">= 0.7"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
