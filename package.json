@@ -10,7 +10,7 @@
   "main": "build/Release/binding.node",
   "scripts": {
     "preinstall": "node-gyp clean || true; node-gyp configure build"
-  }
+  },
   "engines": {
     "node": ">= 0.7"
   },
